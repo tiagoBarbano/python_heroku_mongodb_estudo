@@ -2,7 +2,7 @@ import motor.motor_asyncio
 from decouple import config
 from bson.objectid import ObjectId
 
-MONGO_DETAILS = config("MONGO_DETAILS") 
+MONGO_DETAILS = "mongodb+srv://tiagoventura:jQG08nXHDLPADWGz@cluster0.1du3xts.mongodb.net/?retryWrites=true&w=majority"
 
 client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_DETAILS)
 

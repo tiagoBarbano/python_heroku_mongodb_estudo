@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Body, HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from app.schema import (ErrorResponseModel, ResponseModel, UserSchema, UpdateUserModel)
-from app.database import add_user, get_all_users, get_user_by_id, update_user, delete_user
+from app.database import add_user, get_all_users, get_user_by_id, update_user, delete_user, user_helper, user_collection
 from bson.objectid import ObjectId
 
 router = APIRouter()
@@ -14,12 +14,15 @@ async def root():
 @router.post("/", response_description="user data added into the database")
 async def add_user(user: UserSchema = Body(...)):
     user_request = jsonable_encoder(user)
-    new_user = await add_user(user_request)
-    return ResponseModel(new_user, "user added successfully.")
+    user = await user_collection.insert_one(user_request)
+    new_user = await user_collection.find_one({"_id": user.inserted_id})
+    return ResponseModel(user_helper(new_user), "user added successfully.")
 
 @router.get("/", response_description="users retrieved")
 async def get_users():
-    users = await get_all_users()
+    users = []
+    async for user in user_collection.find():
+        users.append(user_helper(user))
 
     if users:
         return ResponseModel(users, "users data retrieved successfully")
